@@ -1,0 +1,96 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Title: Red Black Tree class
+// Course: CS 400 Fall 2024
+//
+// Author: Nitya Madadi
+//
+///////////////////////////////////////////////////////////////////////////////
+public class RedBlackTree<T extends Comparable<T>> extends BSTRotation<T> {
+  /**
+   * Inserts a new value into the Red-Black Tree by also overriding the insert method 
+   * within the BinarySearchTree class.
+   * @param value; the value that needs to be inserted into the Red-Black tree
+   */
+    public void insert(T value) {
+      RBTNode<T> newNode = new RBTNode<>(value); //creating a new RBTNode new node with the value
+      
+      //Checking if the root is null
+      if (this.root == null) {
+        this.root = newNode; //If it is null, the newNode is the root.
+      } else {
+        insertHelper(newNode, this.root); 
+        //Calling ensureRedProperty since the root is not null and there is a new node.
+        ensureRedProperty(newNode);
+      }
+      if(this.root != null) {
+      //Setting the root node color to black because it the root node cannot be red
+        ((RBTNode<T>) this.root).isRed = false; 
+      }
+     
+    }
+    /**
+     * Checks if a new red node in the RedBlackTree causes a red property violation
+     * by having a red parent. If this is not the case, the method terminates without
+     * making any changes to the tree. If a red property violation is detected, then
+     * the method repairs this violation and any additional red property violations
+     * that are generated as a result of the applied repair operation.
+     * @param newRedNode a newly inserted red node, or a node turned red by previous repair
+     */
+    protected void ensureRedProperty(RBTNode<T> newRedNode) {
+
+      //Checking that the new red node is not null, doesn't equal the root, and it's parent isn't red
+      while (newRedNode != null && newRedNode != this.root && newRedNode.getUp().isRed() == true) {
+	// Getting the parent and the grandparent of the new node.
+        RBTNode<T> newNodeParent = newRedNode.getUp();
+        RBTNode<T> newNodeGrandparent = newNodeParent.getUp();
+
+        // Checking if the parent is the left child of the grandparent, if it is we get the uncle to the right of the grandparent. 
+        if (newNodeParent == newNodeGrandparent.getLeft()) { 
+            RBTNode<T> newNodeRightUncle = newNodeGrandparent.getRight();
+
+            if (newNodeRightUncle != null && newNodeRightUncle.isRed() == true) {
+                //If the uncle is red, we are encountering case 1, so we re color the parent, uncle, and grandparent.
+                newNodeParent.flipColor(); //Flipping the color of the parent node
+                newNodeRightUncle.flipColor();  //Flipping the color of the uncle node
+                newNodeGrandparent.flipColor(); //Flipping the color of the grandparent node
+                newRedNode = newNodeGrandparent;
+            } else {
+                //If the node is the right child, then we are encountering case 2, so we do a left rotation on the parent.
+                if (newRedNode == newNodeParent.getRight()) {
+                    rotate(newRedNode, newNodeParent); //rotating the parent node to the left
+                    newRedNode = newNodeParent; 
+                    newNodeParent = newRedNode.getUp(); //grabbing the new parent node
+                }
+                //Now since the node is a left child, we go for case 3 and do a right rotation on the grandparent.
+                rotate(newNodeParent, newNodeGrandparent); //rotating the grandparent node to the right
+                newNodeParent.flipColor();
+                newNodeGrandparent.flipColor();
+            }
+        //Checking if the parent is the right child of the grandparent, if it is we get the uncle to the left of the grandparent.
+        } else if(newNodeParent == newNodeGrandparent.getRight()){
+            RBTNode<T> newNodeLeftUncle = newNodeGrandparent.getLeft();
+            
+            if (newNodeLeftUncle != null && newNodeLeftUncle.isRed() == true) {
+                //If the left uncle is red, then we go for case 1, so we re color the parent, uncle, and grandparent
+                newNodeParent.flipColor();     //Flipping the color of the parent
+                newNodeLeftUncle.flipColor();  //Flipping the color of the uncle
+                newNodeGrandparent.flipColor();//Flipping the color of the grandparent
+                newRedNode = newNodeGrandparent; 
+            } else {
+                //If the node is the left child, then we go for case 2, and we do a right rotation of the parent
+                if (newRedNode == newNodeParent.getLeft()) {
+                    rotate(newRedNode, newNodeParent); //rotating the parent node to the right
+                    newRedNode = newNodeParent; 
+                    newNodeParent = newRedNode.getUp(); //grabbing the new parent node
+                }
+                //Now that the node is the right child, we go for case 3 and do a left rotation of the grandparent
+                rotate(newNodeParent, newNodeGrandparent); //rotating the grandparent node to the left
+                newNodeParent.flipColor();     
+                newNodeGrandparent.flipColor();
+            }
+        }
+    }
+      
+    }
+}
