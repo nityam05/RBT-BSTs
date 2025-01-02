@@ -1,0 +1,125 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Title: Binary Search Tree
+// Course: CS 400 Fall 2024
+//
+// Author: Nitya Madadi
+//
+///////////////////////////////////////////////////////////////////////////////
+public class BinarySearchTree <T extends Comparable<T>> implements SortedCollection<T>{  
+  protected BSTNode<T> root; //Creating a protected BSTNode instance variable called root.
+  /*
+   * Inserts the data passed to the insert method in the BST. If the tree is empty then 
+   * the data becomes a single root, or it is placed in the appropriate position in 
+   * the BST. 
+   * 
+   * @param data; value to be inserted
+   */
+  public void insert(T data) throws NullPointerException {
+    if(data == null) {
+      throw new NullPointerException("The data is null, cannot be inserted into the BST."); 
+      //Exception thrown when data is null.
+    } else {
+      BSTNode<T> nodeInserted = new BSTNode<T> (data);
+      if (root == null) {
+        this.root = nodeInserted; 
+        //Root is empty starting the BST with this node.
+      } else {
+        insertHelper(nodeInserted, root); 
+      }
+    }
+  }
+  /**
+   * Performs the naive binary search tree insert algorithm to recursively
+   * insert the provided newNode (which has already been initialized with a
+   * data value) into the provided tree/subtree.  When the provided subtree
+   * is null, this method does nothing. 
+   * 
+   * @param newNode; node needed to be placed within the BST
+   * @param subtree; subtree where node should be placed
+   */
+  protected void insertHelper(BSTNode<T> newNode, BSTNode<T> subtree) {
+    T nodeData = newNode.getData();
+    if(nodeData.compareTo(subtree.getData()) >= 0) { //Right root subtree
+      if(subtree.getRight() != null) {
+        insertHelper(newNode, subtree.getRight());
+      } else {
+        subtree.setRight(newNode);
+        newNode.setUp(subtree);
+      }    
+    } else { //Left root subtree
+      if(subtree.getLeft() != null) {
+        insertHelper(newNode, subtree.getLeft());
+      } else {
+        subtree.setLeft(newNode);
+        newNode.setUp(subtree);
+      }
+    }
+  }
+
+  /*
+   * Searches for the data passed as a parameter within the BST.
+   * 
+   * @param data; the value to be found
+   * @return true if the data is found within the BST, false otherwise
+   */
+  public boolean contains(Comparable<T> data) {
+    BSTNode<T> current = this.root;
+    while (current != null) {
+        if (data.compareTo(current.getData()) == 0) {
+            return true; //Stops the while loop when data is found within the BST
+        } else if (data.compareTo(current.getData()) < 0) {
+            current = current.getLeft(); //Moves to left subtree
+        } else if(data.compareTo(current.getData()) > 0){
+            current = current.getRight(); //Moves to right subtree
+        }
+    }
+    return false;
+  }
+
+  /*
+   * Returns the number of nodes within the BST.
+   * 
+   * @return the number of nodes within the BST
+   */
+  public int size() {
+    return sizeAssist(root); //Calls the recursive sizeAssist method to find the size. 
+  }
+  
+  /*
+   * Is the assisting private method for the size method which recursively calculates the number
+   * of nodes in the subtrees.
+   * 
+   * @param node; the root of the subtree from where the size is calculated recursively
+   * @return the number of nodes within the BST
+   */
+  private int sizeAssist(BSTNode<T> node) {
+    int BSTRootsize = 0;
+    if(node == null) {
+      return BSTRootsize; //Size is 0.
+    } else {
+      BSTRootsize = 1 + sizeAssist(node.left) + sizeAssist(node.right);
+    }
+    return BSTRootsize;
+  }
+
+  /*
+   * Checks if the BST is empty.
+   * 
+   * @return true if the BST is empty, false otherwise
+   */
+  public boolean isEmpty() {
+    boolean Rempty = false; 
+    if(root == null) {
+      Rempty = true; //Root is null, indicating it is empty.
+    } 
+    return Rempty;
+  }
+
+  /*
+   * Clears the BST.
+   */
+  public void clear() {
+    this.root = null;
+  }
+}
