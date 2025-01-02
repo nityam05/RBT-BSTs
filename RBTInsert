@@ -1,0 +1,223 @@
+///////////////////////////////////////////////////////////////////////////////
+//
+// Title: Binary Search Tree Rotation
+// Course: CS 400 Fall 2024
+//
+// Author: Nitya Madadi
+//
+///////////////////////////////////////////////////////////////////////////////
+public class BSTRotation<T extends Comparable<T>> extends BinarySearchTree<T> {
+  /**
+   * Performs the rotation operation on the provided nodes within this tree. When the provided child
+   * is a left child of the provided parent, this method will perform a right rotation. When the
+   * provided child is a right child of the provided parent, this method will perform a left
+   * rotation. When the provided nodes are not related in one of these ways, this method will either
+   * throw a NullPointerException: when either reference is null, or otherwise will throw an
+   * IllegalArgumentException.
+   *
+   * @param child  is the node being rotated from child to parent position
+   * @param parent is the node being rotated from parent to child position
+   * @throws NullPointerException     when either passed argument is null
+   * @throws IllegalArgumentException when the provided child and parent nodes are not initially
+   *                                  (pre-rotation) related that way
+   */
+  protected void rotate(BSTNode<T> child, BSTNode<T> parent) throws NullPointerException, IllegalArgumentException {
+    if (child == null || parent == null) { //Checking that the child or the parent nodes are null, if they are, throw an exception
+      throw new NullPointerException("Neither node can be null.");
+    }
+    if (parent.getLeft() == child) { //Left rotation because the child is the left child of the parent
+      BSTNode<T> newRightChild = child.getRight(); //Getting the right child 
+      if (parent.getUp() == null) { 
+        root = child; //updating the root to be the child if the parent was the root
+      } else {
+      //updating the parents reference to point to the new child
+        if (parent.isRightChild() == false) {
+          parent.getUp().setLeft(child); 
+        } else {
+          parent.getUp().setRight(child);
+        }    
+      }
+      
+      child.setRight(parent); //setting the current parent as the right child
+      parent.setLeft(newRightChild); //setting the parent's left child to be the right child
+
+      if (newRightChild != null) { //updating the parent pointers
+        newRightChild.setUp(parent);
+      }
+      
+      //updating the references in the upward direction
+      child.setUp(parent.getUp());
+      parent.setUp(child);
+      
+    } else if (parent.getRight() == child) { //Right rotation because the child is the right child of the parent
+      BSTNode<T> newLeftChild = child.getLeft(); //grabbing the left child 
+      if (parent.getUp() == null) {
+          root = child; //updating the root to be the child if the parent was the root
+      } else {
+        //updating the parents reference to point to the new child
+        if (parent.isRightChild() == false) {
+          parent.getUp().setLeft(child);
+        } else {
+          parent.getUp().setRight(child);
+        }
+      }
+      
+      child.setLeft(parent); //setting the current parent as the right child
+      parent.setRight(newLeftChild); //setting the parent's left child to be the right child
+      
+      if (newLeftChild != null) { //updating the parent pointers
+        newLeftChild.setUp(parent);
+      }
+      
+      //updating the references in the upward direction
+      child.setUp(parent.getUp());
+      parent.setUp(child);
+    }
+      
+  }
+  /*
+   * Tests whether a right rotation occurs correctly depending on the nodes inserted.
+   */
+  public boolean test1() {
+    BSTRotation<Integer> test1Tree = new BSTRotation<>();
+
+    // Inserting the nodes
+    test1Tree.insert(9);
+    test1Tree.insert(4);
+    test1Tree.insert(13);
+    test1Tree.insert(2);
+
+    // Rotating the left node and the root.
+    test1Tree.rotate(test1Tree.root.getLeft(), test1Tree.root);
+
+    BSTNode<Integer> newRoot = test1Tree.root;
+    boolean test1Result = true;
+    // Checking if the root is now 4 and not null.
+    if (test1Tree.root == null && !newRoot.getData().equals(4)) {
+      test1Result = false;
+    }
+    // Checking if the left child of the root 4 is 2 and not null.
+    if (test1Tree.root.getLeft() == null && !newRoot.getLeft().getData().equals(2)) {
+      test1Result = false;
+    }
+    // Checking if the right child of the root is 9 and not null.
+    if (test1Tree.root.getRight() == null && !newRoot.getRight().getData().equals(9)) {
+      test1Result = false;
+    }
+    // Checking if the grand child of the root is 13 and not null.
+    if (test1Tree.root.getRight().getRight() == null
+        && !newRoot.getRight().getRight().getData().equals(13)) {
+      test1Result = false;
+    }
+    return test1Result;
+
+  }
+
+  /*
+   * Tests whether a left rotation occurs correctly depending on the nodes inserted.
+   */
+  public boolean test2() {
+    BSTRotation<Integer> test2Tree = new BSTRotation<>();
+
+    // Inserting the nodes
+    test2Tree.insert(9);
+    test2Tree.insert(13);
+    test2Tree.insert(45);
+
+    // Rotating the grand child node and the right node of the root.
+    test2Tree.rotate(test2Tree.root.getRight().getRight(), test2Tree.root.getRight());
+
+    boolean test2Result = true;
+    // Checking if the right child of the root is 45 and not null.
+    if (test2Tree.root.getRight() == null && !test2Tree.root.getRight().getData().equals(45)) {
+      test2Result = false;
+    }
+    // Checking if the grand child of the root is 13 and not null.
+    if (test2Tree.root.getRight().getLeft() == null
+        && !test2Tree.root.getRight().getLeft().getData().equals(13)) {
+      test2Result = false;
+    }
+
+    return test2Result;
+  }
+
+  /*
+   * Tests that a right rotation involving the root is done correctly.
+   */
+  public boolean test3() {
+    BSTRotation<Integer> test3Tree = new BSTRotation<>();
+
+    // Inserting the nodes
+    test3Tree.insert(9);
+    test3Tree.insert(2);
+    test3Tree.insert(13);
+
+    // Rotating the right node of the root and the root.
+    test3Tree.rotate(test3Tree.root.getRight(), test3Tree.root);
+
+    boolean test3Result = true;
+    // Checking if the root is 13 and not null.
+    if (test3Tree.root == null && !test3Tree.root.getData().equals(13)) {
+      test3Result = false;
+    }
+    // Checking if the left child of the root is 9 and not null.
+    if (test3Tree.root.getLeft() == null && !test3Tree.root.getLeft().getData().equals(9)) {
+      test3Result = false;
+    }
+    // Checking if the root is the grandparent for the left child of 2 and not null.
+    if (test3Tree.root.getLeft() == null
+        && !test3Tree.root.getLeft().getLeft().getData().equals(2)) {
+      test3Result = false;
+    }
+    return test3Result;
+  }
+
+  /*
+   * Tests that the appropriate exceptions (NullPointerException & IllegalArgumentException) are
+   * thrown when the parameters are null or don't have a proper parent child relationship within the
+   * BST.
+   */
+  public boolean test4() {
+    BSTRotation<Integer> test4Tree = new BSTRotation<>();
+
+    // Now checking for the NullPointerException that should be thrown.
+    boolean test4ResultNull = true;
+    // Checks that the null values inserted will throw a NullPointerException.
+    try {
+      test4Tree.rotate(null, null);
+      test4ResultNull = false;
+    } catch (NullPointerException e) {
+      test4ResultNull = true;
+    }
+
+    // Now checking for the IllegalArgumentException that should be thrown.
+    // Inserting the nodes
+    test4Tree.insert(9);
+    test4Tree.insert(2);
+
+    boolean test4ResultIllegal = true;
+    // Checks that the nodes 9 and 2 inserted will throw an IllegalArgumentException because
+    // 2 is not the parent of 9.
+    try {
+      test4Tree.rotate(test4Tree.root, test4Tree.root.getLeft());
+      test4ResultIllegal = false;
+    } catch (IllegalArgumentException e) {
+      test4ResultIllegal = true;
+    }
+  
+    return test4ResultNull && test4ResultIllegal;
+  }
+
+  /*
+   * Main class.
+   * 
+   * @param args (Not used)
+   */
+  public static void main(String[] args) {
+    BSTRotation<Integer> testCases = new BSTRotation<>();
+    System.out.println("Test 1 result: " + testCases.test1());
+    System.out.println("Test 2 result: " + testCases.test2());
+    System.out.println("Test 3 result: " + testCases.test3());
+    System.out.println("Test 4 result: " + testCases.test4());
+  }
+}
